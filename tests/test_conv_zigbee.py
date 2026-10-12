@@ -339,3 +339,29 @@ def test_aqara_p1_open_time_notify_only():
     assert device.encode_read(
         {"open_time", "detection_distance"}
     ) == device.encode_read({"detection_distance"})
+
+
+def test_aqara_p1_chip_temperature():
+    device = XDevice(
+        "lumi.magnet.ac01", type=ZIGBEE, ieee="aa:aa:aa:aa:aa:aa:aa:aa", nwk="0x1234"
+    )
+    # Silabs 0xFCC0 attribute 0x00F7 with tag 3 (int8 = 25°C) from hardware log
+    p = decode(
+        device,
+        {
+            "clusterId": "0xFCC0",
+            "APSPlayload": (
+                "0x1C5F11570AF70041340121730E0328190421A81305216700"
+                "06240200000000082118010A2100000C20016410016620036720016821A8009F2002A01000"
+            ),
+        },
+    )
+    assert p == {"chip_temperature": 25}
+
+    # Gateway native daemon heartbeat / report format
+    assert device.decode({"res_name": "8.0.2006", "value": 26}) == {
+        "chip_temperature": 26
+    }
+
+    # Passive diagnostic telemetry must not poll sleepy device
+    assert device.encode_read({"chip_temperature"}) == {}
