@@ -547,38 +547,6 @@ class ZLumiMagnetTamperConv(ZBoolConv):
         payload.setdefault("commands", []).extend(cmd)
 
 
-# Thanks to zigbee2mqtt:
-# https://github.com/Koenkk/zigbee-herdsman-converters/blob/master/src/lib/lumi.ts
-class ZLumiChipTempConv(ZConverter):
-    cluster_id = 0xFCC0
-    attr_id = 0x00F7
-    basic_attr: int = 3
-
-    def decode(self, device: "XDevice", payload: dict, data: dict | int):
-        if isinstance(data, (int, float)):
-            payload[self.attr] = data
-            return
-
-        if not isinstance(data, dict):
-            return
-
-        if raw := data.get(self.attr_id):
-            if isinstance(raw, bytes):
-                while len(raw) > 1:
-                    sub_id = int(raw[0])
-                    sub_value, raw = TypeValue.deserialize(raw[1:])
-                    if sub_id == self.basic_attr:
-                        payload[self.attr] = value_decode(sub_value)
-                        return
-
-        if val := data.get(0xFF01):
-            if isinstance(val, dict) and self.basic_attr in val:
-                payload[self.attr] = val[self.basic_attr]
-                return
-
-    def encode_read(self, device: "XDevice", payload: dict):
-        pass
-
 class ZLumiSensConv(ZConverter):
     cluster_id = IasZone.cluster_id
     attr_id = 0xFFF0  # read attr

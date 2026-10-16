@@ -616,7 +616,6 @@ DEVICES += [{
         MapConv("action", "sensor", mi="4.p.1", map={1: "single"}, entity=ENTITY_DISABLED),
         # MIoT open-time in seconds; do not synthesize a reset on closing.
         NotifyConv("open_time", "sensor", mi="5.p.1", entity=ENTITY_DISABLED),
-        ZLumiChipTempConv("chip_temperature", "sensor", mi="8.0.2006", entity=ENTITY_DISABLED),
     ],
 }, {
     "lumi.magnet.acn001": ["Aqara", "Door/Window Sensor E1 CN", "MCCGQ14LM"],
